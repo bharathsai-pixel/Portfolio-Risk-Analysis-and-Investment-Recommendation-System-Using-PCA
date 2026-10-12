@@ -32,10 +32,10 @@ def fetch_price_data(tickers, start="2019-01-01", end="2026-01-01"):
     return prices
 
 
-def make_demo_prices(tickers=TICKERS, periods=1250, seed=42):
+def make_demo_prices(tickers=TICKERS, periods=1250, seed=42, start="2021-01-01"):
     """Create correlated, labelled-free sample prices when online data is unavailable."""
     rng = np.random.default_rng(seed)
-    dates = pd.bdate_range("2021-01-01", periods=periods)
+    dates = pd.bdate_range(start, periods=periods)
     market = rng.normal(0.00035, 0.009, periods)
     sector = rng.normal(0, 0.006, (periods, 4))
     returns = {}
@@ -50,7 +50,11 @@ def make_demo_prices(tickers=TICKERS, periods=1250, seed=42):
 
 def load_prices(output_path, tickers=TICKERS, start="2019-01-01", end="2026-01-01",
                 synthetic=False):
-    prices = make_demo_prices(tickers) if synthetic else fetch_price_data(tickers, start, end)
+    if synthetic:
+        periods = max(3, len(pd.bdate_range(start, pd.Timestamp(end) - pd.Timedelta(days=1))))
+        prices = make_demo_prices(tickers, periods=periods, seed=42, start=start)
+    else:
+        prices = fetch_price_data(tickers, start, end)
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     prices.to_csv(path, index_label="Date")

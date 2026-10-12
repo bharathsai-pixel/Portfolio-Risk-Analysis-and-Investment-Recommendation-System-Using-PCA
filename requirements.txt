@@ -123,3 +123,6 @@ websockets==17.0.1
 Werkzeug==3.1.8
 widgetsnbextension==4.0.15
 yfinance==1.5.2
+streamlit>=1.40
+plotly>=5.24
+pytest>=8.0
