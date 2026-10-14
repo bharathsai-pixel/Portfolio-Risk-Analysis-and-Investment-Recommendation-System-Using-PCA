@@ -1,0 +1,24 @@
+{
+  "provenance_id": "06aff905-ffe3-4514-9977-bf83f2bfe60f",
+  "weighting_method": "equal",
+  "training_window_days": 252,
+  "rebalance_every_days": 21,
+  "transaction_cost_rate": 0.001,
+  "benchmark": "^NSEI",
+  "metrics": {
+    "observations": 1492,
+    "portfolio_return_annualized": 0.07364854961651823,
+    "benchmark_return_annualized": 0.1365582349458936,
+    "excess_return_annualized": -0.06787799848810501,
+    "beta": 0.012658173187247473,
+    "jensens_alpha_annualized": 0.07481313609063085,
+    "tracking_error": 0.20722376963841502,
+    "information_ratio": -0.3275589407843772,
+    "sharpe_ratio": 0.7260575986541756,
+    "annualized_volatility": 0.1055598092383373,
+    "maximum_drawdown": -0.13075348736069614,
+    "cagr": 0.07364854961651823,
+    "risk_free_rate_annual": 0.0,
+    "return_convention": "simple daily returns; arithmetic annualization except CAGR fields"
+  }
+}

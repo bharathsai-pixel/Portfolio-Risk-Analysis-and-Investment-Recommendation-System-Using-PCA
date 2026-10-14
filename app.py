@@ -95,7 +95,9 @@ elif page == "Risk Analysis" and need_result():
     d=result["analysis"]
     ticker=st.selectbox("Select a stock", d.index)
     row=d.loc[ticker]
-    metrics=[("Annualized return",row.mean_annual_return,"Approximate yearly return from the selected history."),("Annualized volatility",row.annual_volatility,"Measures how much daily returns fluctuate, scaled to a year."),("Sharpe-like ratio",row.sharpe_like_ratio,"Annualized return divided by volatility; no risk-free rate is subtracted."),("Maximum drawdown",row.max_drawdown,"Largest historical peak-to-trough decline."),("Skewness",row.skewness,"Indicates whether return outcomes are asymmetric."),("Kurtosis",row.kurtosis,"Describes tail heaviness relative to a normal distribution."),("5th percentile daily return",row.var_95_daily,"A historical lower-tail daily return quantile; not a forecast.")]
+    # Use label-based access: Series.kurtosis is a method and would otherwise
+    # be formatted as a value when the feature column is named "kurtosis".
+    metrics=[("Annualized return",row["mean_annual_return"],"Approximate yearly return from the selected history."),("Annualized volatility",row["annual_volatility"],"Measures how much daily returns fluctuate, scaled to a year."),("Sharpe-like ratio",row["sharpe_like_ratio"],"Annualized return divided by volatility; no risk-free rate is subtracted."),("Maximum drawdown",row["max_drawdown"],"Largest historical peak-to-trough decline."),("Skewness",row["skewness"],"Indicates whether return outcomes are asymmetric."),("Kurtosis",row["kurtosis"],"Describes tail heaviness relative to a normal distribution."),("5th percentile daily return",row["var_95_daily"],"A historical lower-tail daily return quantile; not a forecast.")]
     cols=st.columns(4)
     for i,(label,value,help_text) in enumerate(metrics): cols[i%4].metric(label, f"{value:.2%}" if "return" in label.lower() or "drawdown" in label.lower() else f"{value:.3f}", help=help_text)
     st.subheader("Annualized return and volatility")

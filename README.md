@@ -1,4 +1,19 @@
-# Portfolio Risk Analysis and Investment Recommendation System Using PCA
+﻿# Portfolio Risk Analysis and Investment Recommendation System Using PCA
+
+## Contents
+
+- [Project overview](#project-overview)
+- [Features](#features)
+- [How to run this project](#how-to-run-this-project)
+- [Application guide](#application-guide)
+- [Project structure](#project-structure)
+- [Methodology and metric conventions](#methodology-and-metric-conventions)
+- [Outputs and provenance](#outputs-and-provenance)
+- [Course outcome map (CO1–CO6)](#course-outcome-map-co1co6)
+- [Tests](#tests)
+- [Limitations and disclaimer](#limitations-and-disclaimer)
+
+## Project overview
 
 A local Python application for exploring risk and return characteristics of Indian NSE stocks. It transforms historical prices into stock-level features, uses PCA and clustering to summarize relationships, compares volatility-derived risk categories, and provides example portfolio weights and a chronological benchmark backtest.
 
@@ -17,7 +32,9 @@ This is an educational analysis tool, not personalized investment advice or a fo
 - Streamlit web interface with dashboard, risk, PCA/clusters, portfolio, benchmark/backtest, and model evaluation pages.
 - Source-separated raw prices, generated analysis tables, model artifacts, and provenance metadata.
 
-## Requirements and installation
+## How to run this project
+
+### 1. Install prerequisites and dependencies
 
 Python 3.10 or newer is recommended. Online mode and NIFTY benchmark analysis require internet access and Yahoo Finance availability. Synthetic analysis and the core tests do not need market data access.
 
@@ -43,15 +60,15 @@ source .venv/bin/activate
 python -m pip install -r requirements.txt
 ```
 
-## Run the application
+### 2. Start the web application
 
-Start the web app from the repository root:
+From the repository root, launch Streamlit:
 
 ```powershell
 streamlit run app.py
 ```
 
-Use the **Run Analysis** page to choose Yahoo Finance or synthetic data, start and exclusive end dates, and stock tickers. Results are only recalculated after clicking **Run Analysis**. Yahoo Finance failures are displayed as errors; the app does not silently switch to synthetic data. The app does not currently cache analyses, so a submitted configuration is downloaded and processed anew.
+Streamlit prints a local URL (usually `http://localhost:8501`) in the terminal and may open it in your browser. On the **Run Analysis** page, choose Yahoo Finance or synthetic demonstration data, set the start date and exclusive end date, select at least three NSE stocks, choose automatic or manual clustering, and click **Run Analysis**. The default range is 2019-01-01 through 2026-01-01 (end date excluded), and all 24 configured tickers are selected by default. Yahoo Finance requires internet access. Download errors are shown in the app; the application does not silently replace live data with synthetic data. Each submission downloads/processes again rather than using a cache.
 
 The same command works from macOS/Linux after activating the environment:
 
@@ -59,7 +76,7 @@ The same command works from macOS/Linux after activating the environment:
 streamlit run app.py
 ```
 
-## Command-line pipeline
+### 3. Run the command-line pipeline (optional)
 
 The existing batch workflow remains available:
 
@@ -74,29 +91,57 @@ The first command runs deterministic artificial prices without network access. T
 python main.py --synthetic --start 2021-01-01 --end 2025-01-01
 ```
 
-macOS/Linux use the same commands with `python` after environment activation.
+macOS/Linux use the same commands with `python` after environment activation. The CLI defaults to Yahoo Finance, dates 2019-01-01 through the exclusive end date 2026-01-01, and the complete configured ticker list. Add `--synthetic` for an offline run.
 
-## Architecture
+### 4. Stop the application
+
+Press **Ctrl+C** in the terminal running Streamlit. To leave the virtual environment, run `deactivate`.
+
+## Application guide
+
+The sidebar provides these views after an analysis has completed:
+
+| Page | What it shows |
+| --- | --- |
+| Dashboard | Selected data source and provenance ID, date range, stock universe, PCA component count and retained variance, chosen cluster count, and a stock summary table. |
+| Run Analysis | Data source, dates, ticker selection, and automatic or manually selected cluster count. |
+| Risk Analysis | Per-stock historical risk/return metrics, return-versus-volatility chart, relative risk group counts, and rolling risk windows when enough data is available. |
+| PCA & Clusters | Explained variance, first two principal-component coordinates, feature loadings, and clustering validation/stability results. |
+| Portfolio Examples | Low-, medium-, and high-risk candidate lists with equal, inverse-volatility, or minimum-variance weights and configurable per-stock weight and portfolio-size limits. |
+| Benchmark & Backtest | User-configurable chronological backtest window, rebalance frequency, transaction cost, weighting method, NIFTY 50 comparison metrics, equity curve, and drawdown. Requires Yahoo Finance benchmark access. |
+| Model Evaluation | Logistic Regression and Random Forest holdout metrics and confusion matrices when the sample is large enough. |
+
+The results stay in Streamlit's current session state. Rerunning the app or starting a new session may require running the analysis again. The batch CLI runs the shared core pipeline and prints a summary; it does not provide the interactive pages.
+
+## Project structure
 
 ```text
-app.py                       Streamlit user interface
-main.py                      Command-line entry point
-src/pipeline.py              Shared analysis workflow for both interfaces
-src/data_loader.py           Yahoo Finance and deterministic sample prices
-src/preprocess.py             Daily returns and stock-level features
-src/pca_pipeline.py           PCA and feature loadings
-src/clustering.py             K-means and cluster validation comparisons
-src/classifier.py             Volatility risk labels and classifiers
-src/evaluate.py               Holdout and stratified CV metrics
-src/rolling_analysis.py       Rolling risk summaries and label consistency
-src/portfolio_optimizer.py    Equal, inverse-volatility, minimum-variance weights
-src/benchmark.py              NIFTY 50 retrieval and aligned metrics
-src/backtesting.py            Chronological walk-forward backtest
-src/provenance.py             Source paths and reproducibility metadata
-src/recommend.py              Rule-based profile candidate selection
-src/visualize.py              Static report charts
-tests/                        Deterministic tests using generated data
+app.py                         Streamlit interface and interactive visualizations
+main.py                        Command-line entry point
+requirements.txt               Python package dependencies
+ML abstract.pdf                Project/course abstract document
+src/pipeline.py                Shared analysis workflow for both interfaces
+src/data_loader.py             Yahoo Finance and deterministic sample prices
+src/preprocess.py              Daily returns and stock-level features
+src/pca_pipeline.py            PCA and feature loadings
+src/clustering.py              K-means and cluster validation comparisons
+src/classifier.py              Volatility risk labels and classifiers
+src/evaluate.py                Holdout and stratified cross-validation metrics
+src/rolling_analysis.py        Rolling risk summaries and label consistency
+src/portfolio_optimizer.py     Equal, inverse-volatility, minimum-variance weights
+src/benchmark.py               NIFTY 50 retrieval and aligned metrics
+src/backtesting.py             Chronological walk-forward backtest
+src/provenance.py               Source paths and reproducibility metadata
+src/recommend.py                Risk-profile candidate selection
+src/visualize.py                Static report charts
+tests/                          Automated tests using generated data
+data/                            Downloaded or generated prices and processed tables
+models/                          Fitted, provenance-tagged joblib artifacts
+reports/                         Analysis tables, metadata, and charts
+.gitignore                       Excludes caches and generated outputs from Git
 ```
+
+The `data/`, `models/`, and `reports/` directories are output locations. Analysis creates source-specific subdirectories as needed; generated files are not required to be present in a fresh checkout.
 
 ## Course outcome map (CO1–CO6)
 
@@ -180,3 +225,4 @@ The tests cover synthetic reproducibility, data-source paths, feature/PCA output
 - The backtest uses a fixed current universe and simplified transaction costs; it is not a production trading system.
 
 This project is for education and research only. It is not financial advice. Consult a qualified professional before making investment decisions.
+
